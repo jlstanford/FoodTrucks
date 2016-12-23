@@ -1,17 +1,17 @@
 package jstan11.foodtrucks;
 
 
-public class Trucks {
+public class Truck {
     private String name;
     private String foodType;
     private String location;
     private Coupon[] coupons;
 
-   public Trucks(){
+   public Truck(){
 
    }
 
-    public Trucks(String name, String type, String location){
+    public Truck(String name, String type, String location){
         name = this.name;
         type = this.foodType;
         location = this.location;

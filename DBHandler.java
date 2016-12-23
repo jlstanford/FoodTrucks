@@ -30,16 +30,28 @@ public class DBHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TRUCKS_TABLE = "CREATE TABLE " + TRUCKS_TABLE + "(" + TRUCK_NAME + " TEXT PRIMARY KEY," + FOOD_TYPE + " TEXT," + LOCATION + " TEXT" + ")";
 
-        String CREATE_COUPONS_TABLE = "CREATE TABLE " + COUPONS_TABLE + "(" + TRUCK_NAME + " TEXT," + COUPON_NAME + " TEXT," + COUPON_ID + " INTEGER UNIQUE," + ")";
+        String CREATE_COUPONS_TABLE = "CREATE TABLE " + COUPON_INFO_TABLE + "(" + COUPON_ID +" INTEGER UNIQUE PRIMARY KEY," + COUPON_DESCRIPTION + " TEXT," +COUPON_CODE + " TEXT"+ ")";
 
-        String CREATE_COUPON_INFO_TABLE = "CREATE TABLE " + COUPON_INFO_TABLE + "(" + COUPON_ID +" INTEGER UNIQUE PRIMARY KEY," + COUPON_DESCRIPTION + " TEXT," +COUPON_CODE + " TEXT"+ ")";
+        String CREATE_AVAILABLE_TRUCK_COUPONS_TABLE = "CREATE TABLE " + COUPONS_TABLE + "(" + TRUCK_NAME + " TEXT," + COUPON_NAME + " TEXT," + COUPON_ID + " INTEGER" + ")";
 
         db.execSQL(CREATE_TRUCKS_TABLE);
         db.execSQL(CREATE_COUPONS_TABLE);
-        db.execSQL(CREATE_COUPON_INFO_TABLE);
+        db.execSQL(CREATE_AVAILABLE_TRUCK_COUPONS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TRUCKS_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + COUPONS_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + COUPON_INFO_TABLE);
+
+        onCreate(db);
     }
+
+    public void addCoupon(Coupon coupon){
+
+    }
+
+    public void addTruck(Truck truck){}
+
 }
