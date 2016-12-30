@@ -2,8 +2,12 @@ package jstan11.foodtrucks;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBHandler extends SQLiteOpenHelper {
 
@@ -61,6 +65,58 @@ public class DBHandler extends SQLiteOpenHelper {
         writableDb.close();
     }
 
-    public void addTruck(Truck truck){}
+    public void addTruck(Truck truck){
+        ContentValues values = new ContentValues();
+        values.put(TRUCK_NAME,truck.getName());
+        values.put(FOOD_TYPE, truck.getFoodType());
+        values.put(LOCATION, truck.getLocation());
+
+        writableDb.insert(TRUCKS_TABLE,null,values);
+        writableDb.close();
+    }
+
+    public void addCouponAvalability(Truck truck, Coupon coupon){
+        ContentValues values = new ContentValues();
+        values.put(TRUCK_NAME,truck.getName());
+        values.put(COUPON_ID, coupon.getCouponId());
+
+        writableDb.insert(AVAILABLE_TRUCK_COUPONS_TABLE, null, values);
+    }
+
+    Cursor cursor;
+    public List<Truck> getAllTrucks(){
+        List<Truck> truckList = new ArrayList<Truck>();
+        String selectTrucksQuery = "SELECT * FROM " + TRUCKS_TABLE;
+
+        cursor = writableDb.rawQuery(selectTrucksQuery,null);
+
+        if(cursor.moveToFirst()){
+            while(cursor.moveToNext()){
+                String name = cursor.getString(0);
+                String foodType = cursor.getString(1);
+                String location = cursor.getString(2);
+                Truck truck = new Truck(name, foodType,location);
+
+                truckList.add(truck);
+            }
+        }
+
+        return truckList;
+    }
+
+    public List<Coupon> getCouponsForTruck(Truck truck){
+        List<Coupon> couponList = new ArrayList<Coupon>();
+
+        String selectCouponsQuery = ""; //TODO: write query to link tables and get coupons;
+        cursor = writableDb.rawQuery(selectCouponsQuery,null);
+
+        if(cursor.moveToFirst()) {
+            while(cursor.moveToNext()){
+                String couponName;
+            }
+        }
+
+        return couponList;
+    }
 
 }
