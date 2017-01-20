@@ -19,8 +19,6 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String FOOD_TYPE = "foodType";
     private static final String LOCATION = "location";
 
-    private static final String AVAILABLE_TRUCK_COUPONS_TABLE = "availableTruckCoupons";
-
     private static final String COUPON_INFO_TABLE = "couponInfo";
     private static final String COUPON_DESCRIPTION = "couponDescription";
     private static final String COUPON_CODE = "couponCode";
@@ -35,19 +33,16 @@ public class DBHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TRUCKS_TABLE = "CREATE TABLE " + TRUCKS_TABLE + "(" + TRUCK_NAME + " TEXT PRIMARY KEY," + FOOD_TYPE + " TEXT," + LOCATION + " TEXT" + ")";
 
-        String CREATE_COUPONS_TABLE = "CREATE TABLE " + COUPON_INFO_TABLE + "(" + COUPON_ID +" INTEGER UNIQUE PRIMARY KEY," + COUPON_NAME + " TEXT," + COUPON_DESCRIPTION + " TEXT," +COUPON_CODE + " TEXT"+ ")";
+        String CREATE_COUPONS_TABLE = "CREATE TABLE " + COUPON_INFO_TABLE + "(" + COUPON_ID +" INTEGER UNIQUE PRIMARY KEY," + COUPON_NAME + " TEXT," + COUPON_DESCRIPTION + " TEXT," +COUPON_CODE + " TEXT,"+ TRUCK_NAME +" TEXT" + ")";
 
-        String CREATE_AVAILABLE_TRUCK_COUPONS_TABLE = "CREATE TABLE " + AVAILABLE_TRUCK_COUPONS_TABLE + "(" + TRUCK_NAME + " TEXT," +  COUPON_ID + " INTEGER" + ")";
 
         db.execSQL(CREATE_TRUCKS_TABLE);
         db.execSQL(CREATE_COUPONS_TABLE);
-        db.execSQL(CREATE_AVAILABLE_TRUCK_COUPONS_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TRUCKS_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + AVAILABLE_TRUCK_COUPONS_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + COUPON_INFO_TABLE);
         onCreate(db);
     }
@@ -60,6 +55,7 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(COUPON_NAME,coupon.getName());
         values.put(COUPON_DESCRIPTION,coupon.getDescription());
         values.put(COUPON_CODE,coupon.getCode());
+        values.put(TRUCK_NAME, coupon.getTruckName());
 
         writableDb.insert(COUPON_INFO_TABLE,null,values);
         writableDb.close();
@@ -75,13 +71,6 @@ public class DBHandler extends SQLiteOpenHelper {
         writableDb.close();
     }
 
-    public void addCouponAvalability(Truck truck, Coupon coupon){
-        ContentValues values = new ContentValues();
-        values.put(TRUCK_NAME,truck.getName());
-        values.put(COUPON_ID, coupon.getCouponId());
-
-        writableDb.insert(AVAILABLE_TRUCK_COUPONS_TABLE, null, values);
-    }
 
     Cursor cursor;
     public List<Truck> getAllTrucks(){
@@ -107,12 +96,17 @@ public class DBHandler extends SQLiteOpenHelper {
     public List<Coupon> getCouponsForTruck(Truck truck){
         List<Coupon> couponList = new ArrayList<Coupon>();
 
-        String selectCouponsQuery = ""; //TODO: write query to link tables and get coupons;
+        String selectCouponsQuery = "SELECT * FROM " + COUPON_INFO_TABLE + "WHERE "+ TRUCK_NAME+ " ='" + truck.getName()+"'" ; //really dont need the truck name
         cursor = writableDb.rawQuery(selectCouponsQuery,null);
 
         if(cursor.moveToFirst()) {
             while(cursor.moveToNext()){
-                String couponName;
+                int couponId = cursor.getInt(0);
+                String couponName = cursor.getString(1);
+                String couponDescription = cursor.getString(2);
+                String couponCode = cursor.getString(3);
+                Coupon coupon = new Coupon(couponId, couponName, couponDescription, couponCode, truck);
+                couponList.add(coupon);
             }
         }
 
